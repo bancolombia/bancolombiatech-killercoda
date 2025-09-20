@@ -31,13 +31,13 @@ kubectl patch deployment \
   "argocd-server",
   "--insecure"
   ]}]'
-```
+```{{exec}}
 
 Con este cambio, necesitamos esperar hasta que el servidor vuelva a ser desplegado:
 
 ```bash
 kubectl -n argocd rollout status --watch --timeout=600s deployment/argocd-server
-```
+```{{exec}}
 
 Ahora, podremos liberar el Argo Server ejecutando el siguiente comando:
 
