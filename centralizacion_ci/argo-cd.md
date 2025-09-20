@@ -43,7 +43,7 @@ Ahora, podremos liberar el Argo Server ejecutando el siguiente comando:
 
 ```bash
 kubectl -n argocd port-forward --address 0.0.0.0 svc/argocd-server 80:80 > /dev/null &
-```
+```{{exec}}
 
 Finalmente, podrás acceder a la UI haciendo [click aquí]({{TRAFFIC_HOST1_80}}). Si en este punto, has hecho todo bien, deberías poder ver la consola de Argo, parecido a como se muestra en la Figura 1.
 
