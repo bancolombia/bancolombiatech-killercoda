@@ -27,13 +27,10 @@ kubectl patch deployment \
   argocd-server \
   --namespace argocd \
   --type='json' \
-  -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": [
+  -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args", "value": [
   "server",
-  "--auth-mode=server",
-  "--secure=false"
-]},
-{"op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe/httpGet/scheme", "value": "HTTP"}
-]'
+  "--insecure"
+  ]}]'
 ```{{exec}}
 
 Con este cambio, necesitamos esperar hasta que el servidor vuelva a ser desplegado:
