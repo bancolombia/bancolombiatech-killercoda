@@ -48,4 +48,10 @@ Ahora, podremos liberar el Argo Server ejecutando el siguiente comando:
 kubectl -n argocd port-forward --address 0.0.0.0 svc/argo-server 2746:2746 > /dev/null &
 ```{{exec}}
 
-Ahora, podrás acceder a la UI haciendo [click aquí]({{TRAFFIC_HOST1_80}}).
+Finalmente, podrás acceder a la UI haciendo [click aquí]({{TRAFFIC_HOST1_80}}). Si en este punto, has hecho todo bien, deberías poder ver la consola de Argo, parecido a como se muestra en la Figura 1.
+
+
+## 3. Configuración de Argo CD
+
+Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD, como se muestra a continuación:
+
