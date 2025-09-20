@@ -28,7 +28,7 @@ kubectl patch deployment \
   --namespace argocd \
   --type='json' \
   -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args", "value": [
-  "server",
+  "argocd-server",
   "--insecure"
   ]}]'
 ```{{exec}}
