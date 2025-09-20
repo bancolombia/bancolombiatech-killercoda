@@ -1,0 +1,24 @@
+{
+  "title": "Centralización CI",
+  "description": "Estrategia de centralización de pipelines basadas en Argo Project",
+  "details": {
+    "intro": {
+      "text": "intro.md",
+      "foreground": "background/installers.sh"
+    },
+    "steps": [
+      {
+        "text": "argo-cd.md"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    }
+  },
+  "backend": {
+    "imageid": "kubernetes-kubeadm-2nodes"
+  },
+  "interface": {
+    "layout": "ide"
+  }
+}
