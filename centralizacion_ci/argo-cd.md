@@ -58,6 +58,7 @@ Las credenciales de conexión son:
 k get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
+
 ## 3. Configuración de Argo CD
 
 Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD, como se muestra a continuación:
