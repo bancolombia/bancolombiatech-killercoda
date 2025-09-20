@@ -4,8 +4,34 @@ Usaremos Argo CD para que nuestra estrategia de centralización esté basada en 
 
 ## 1. Repositorio
 
-Para empezar, necesitaremos habilitar un repositorio. En este demo, recomendamos el uso de GitHub, pero cualquier otro Git provider es válido. 
+Para empezar, necesitaremos crear un repositorio. En este demo, usaremos GitHub, pero cualquier otro Git provider es válido. 
 
-El repositorio podría tomar cualquier nombre 
+El repositorio podría tomar cualquier nombre. Ahora, sólo tendrás que compartir la información del repo y el token como variables de entorno:
 
-## 2. 
+```bash
+export GIT_REPO=<nombre_del_repo>
+```{{copy}}
+
+```bash
+export GITHUB_TOKEN=<token>
+```{{copy}}
+
+## 2. Argo Server
+
+Todas las herramientas dentro del ecosistema de Argo cuentan con una UI interactiva que facilita la configuración de algunas operaciones. En la presente sección, habilitaremos y accederemos a la consola de Argo CD.
+
+Por default, Argo Server está configurado para correr con https. Esta configuración es inviable con Killercoda, por lo que ejecutaremos el siguiente comando para que funcione con __http__.
+
+```bash
+kubectl patch deployment \
+  argo-server \
+  --namespace argo \
+  --type='json' \
+  -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": [
+  "server",
+  "--auth-mode=server",
+  "--secure=false"
+]},
+{"op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe/httpGet/scheme", "value": "HTTP"}
+]'
+```{{exec}}

@@ -8,8 +8,7 @@
     },
     "steps": [
       {
-        "text": "argo-cd.md",
-        "foreground": "background/cd-config.sh"
+        "text": "argo-cd.md"
       }
     ],
     "finish": {
