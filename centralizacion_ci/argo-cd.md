@@ -10,11 +10,11 @@ El repositorio podría tomar cualquier nombre. Ahora, sólo tendrás que compart
 
 ```bash
 export GIT_REPO=<nombre_del_repo>
-```{{copy}}
+```
 
 ```bash
 export GITHUB_TOKEN=<token>
-```{{copy}}
+```
 
 ## 2. Argo Server
 
@@ -31,22 +31,32 @@ kubectl patch deployment \
   "argocd-server",
   "--insecure"
   ]}]'
-```{{exec}}
+```
 
 Con este cambio, necesitamos esperar hasta que el servidor vuelva a ser desplegado:
 
 ```bash
 kubectl -n argocd rollout status --watch --timeout=600s deployment/argocd-server
-```{{exec}}
+```
 
 Ahora, podremos liberar el Argo Server ejecutando el siguiente comando:
 
 ```bash
 kubectl -n argocd port-forward --address 0.0.0.0 svc/argocd-server 80:80 > /dev/null &
-```{{exec}}
+```
 
 Finalmente, podrás acceder a la UI haciendo [click aquí]({{TRAFFIC_HOST1_80}}). Si en este punto, has hecho todo bien, deberías poder ver la consola de Argo, parecido a como se muestra en la Figura 1.
 
+![](./images/init.png)
+
+Las credenciales de conexión son:
+
+* __Username:__ admin
+* __Password:__ ejecuta el siguiente comando para conocer la contraseña:
+
+```bash
+k get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
 
 ## 3. Configuración de Argo CD
 
