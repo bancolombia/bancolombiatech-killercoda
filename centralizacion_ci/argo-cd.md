@@ -25,7 +25,7 @@ Por default, Argo Server está configurado para correr con https. Esta configura
 ```bash
 kubectl patch deployment \
   argo-server \
-  --namespace argo \
+  --namespace argocd \
   --type='json' \
   -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": [
   "server",
@@ -35,3 +35,17 @@ kubectl patch deployment \
 {"op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe/httpGet/scheme", "value": "HTTP"}
 ]'
 ```{{exec}}
+
+Con este cambio, necesitamos esperar hasta que el servidor vuelva a ser desplegado:
+
+```bash
+kubectl -n argocd rollout status --watch --timeout=600s deployment/argo-server
+```{{exec}}
+
+Ahora, podremos liberar el Argo Server ejecutando el siguiente comando:
+
+```bash
+kubectl -n argocd port-forward --address 0.0.0.0 svc/argo-server 2746:2746 > /dev/null &
+```{{exec}}
+
+Ahora, podrás acceder a la UI haciendo [click aquí]({{TRAFFIC_HOST1_80}}).
