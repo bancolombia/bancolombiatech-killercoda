@@ -44,13 +44,19 @@ El `EventSource` es el objeto de K8s, de Argo Events, que vincula el clúster co
 
 * __Payload Url:__ es la URL de conexión pública que GitHub usará para comunicarse con nuestro clúster. Lo obtendremos en la sección 2.2 y registraremos en GitHub en la sección 2.3.
 * __Content Type:__ compete a la forma en como se desea transmitir la información. Usaremos `application/json`.
-* __Secret:__ se emplea para firmar la información del evento y garantizar su procedencia. Se emplea para evitar ataques de tipo ["man in the middle"](https://www.ibm.com/think/topics/man-in-the-middle).
+* __Secret:__ se emplea para firmar la información del evento y garantizar su procedencia. Ayuda a evitar ataques de tipo ["man in the middle"](https://www.ibm.com/think/topics/man-in-the-middle).
 
 Para hacer el registro, empezaremos por definir el `secret` de la conexión del Webhook.
 
-```bash
-k create secret generic -n argo-events webhook-secret --from-literal=secret=super-secret_123
-```{{exec}}
+```yaml
+apiVersion: v1
+data:
+  secret: c3VwZXItc2VjcmV0XzEyMw==
+kind: Secret
+metadata:
+  name: webhook-secret
+  namespace: argo-events
+```
 
 Ahora, crearemos el `EventSource` de la siguiente forma:
 
@@ -59,6 +65,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
   name: github
+  namespace: argo-events
 spec:
   service:
     ports:
@@ -73,7 +80,7 @@ spec:
             - Spring-Taller6-CuentaBancaria
             - InversionVirtual
       webhook:
-        endpoint: /push
+        endpoint: /payload
         port: "12000"
         method: POST
       events:
@@ -93,12 +100,57 @@ Se trata de la URL de conexión base entre el clúster de K8s y el repositorio G
 Similar a como lo gestionamos en la sección de Argo CD, habilitaremos el puerto `12000` de nuestro cluster de Kubernetes y lo conectaremos al service de Argo Events (`svc/github-eventsource-svc`) de la siguiente forma:
 
 ```bash
-k port-forward 
+kubectl -n argo-events port-forward --address 0.0.0.0 svc/github-eventsource-svc 12000:12000 > /dev/null &
 ```
 
+En este punto, ya está configurada la URL base de Killercoda para entablar la comunicación con GitHub. Podemos obtenerla ejecutando el siguiente comando:
 
+```bash
+PORT=12000
+URL=$(sed "s/PORT/$PORT/" /etc/killercoda/host)
+echo $URL
+```{{exec}}
+
+Sólo nos falta reconfigurar el `EventSource` con la URL del Webhook que acabamos de imprimir y volver a re-desplegar el pod asociado a este. Para ello, ejecutaremos lo siguiente:
+
+```bash
+PATCH=$(cat <<JSON
+[
+  {
+    "op": "replace",
+    "path": "/spec/github/git-push/webhook/url",
+    "value": "$URL"
+  }
+]
+JSON
+)
+
+kubectl -n argo-events patch eventsources github --type=json -p "$PATCH"
+```{{exec}}
+
+Finalmente, reemplazaremos el pod.
+
+```bash
+DEPLOY=$(kubectl -n argo-events get deploy -l eventsource-name=github -o jsonpath='{.items[0].metadata.name}')
+
+kubectl -n argo-events rollout status --watch --timeout=600s deploy $DEPLOY
+```{{exec}}
+
+En caso de que se deba configurar el deployment (parecido a Argo CD).
+
+```bash
+kubectl patch deploy \
+    $DEPLOY \
+    -n argo-events \
+    --type='json' \
+    -p='[{
+        "op": "add"
+    }]'
+```{{exec}}
 
 ### 2.3. Configuración del Webhook (GitHub)
+
+
 
 
 ## 3. Sensor
