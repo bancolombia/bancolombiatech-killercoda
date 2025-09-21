@@ -108,4 +108,3 @@ spec:
     targetRevision: main
 ```
 
-

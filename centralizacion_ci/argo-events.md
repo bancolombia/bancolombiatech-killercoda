@@ -16,4 +16,8 @@ Como estamos usando un patrón basado en GitOps, los manifiestos que desplegarem
 
 ## 1. Event Source
 
+El `EventSource` permite vincular el repositorio Git con nuestro clúster de Kubernetes (donde tenemos desplegado el ecosistema de Argo Project). 
+
+## 2. Sensor
+
 
