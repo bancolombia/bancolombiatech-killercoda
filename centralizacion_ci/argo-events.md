@@ -101,7 +101,7 @@ Similar a como lo gestionamos en la sección de Argo CD, habilitaremos el puerto
 
 ```bash
 kubectl -n argo-events port-forward --address 0.0.0.0 svc/github-eventsource-svc 12000:12000 > /dev/null &
-```
+```{{exec}}
 
 En este punto, ya está configurada la URL base de Killercoda para entablar la comunicación con GitHub. Podemos obtenerla ejecutando el siguiente comando:
 
