@@ -16,6 +16,34 @@ export GIT_REPO=<nombre_del_repo>
 export GITHUB_TOKEN=<token>
 ```
 
+### 1.1. Adecuación del repositorio
+
+Ahora, vamos a clonar el repositorio y brindar una estructura base para organizar el proyecto. Se recomienda la siguiente estructura:
+
+```text
+<repo>/
+  ├── argo/
+  |     ├── workflows/
+  |     |       ├── README.md
+  |     |       ├── kustomization.yaml
+  |     ├── events/
+  |     |       ├── README.md
+  |     |       ├── kustomization.yaml
+  |     ├── kustomization.yaml
+LICENSE
+README.md
+```
+
+Cada `kustomization.yaml` expuesto en la estructura, especifica los manifiestos que se desean relacionar dentro del flujo GitOps y cuentan con la siguiente estructura:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- <carpeta>
+- <manifiesto>.yaml
+```
+
 ## 2. Argo Server
 
 Todas las herramientas dentro del ecosistema de Argo cuentan con una UI interactiva que facilita la configuración de algunas operaciones. En la presente sección, habilitaremos y accederemos a la consola de Argo CD.
@@ -56,10 +84,28 @@ Las credenciales de conexión son:
 
 ```bash
 k get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
+```{{exec}}
 
 
 ## 3. Configuración de Argo CD
 
-Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD, como se muestra a continuación:
+Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD. Podemos hacerlo a través de la UI o creando un `Application` CRD de Argo CD:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: centralizador_ci
+  namespace: argocd
+spec:
+  destination:  
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: argo
+    repoURL: https://github.com/jdarguello/demo-centralizador-ci
+    targetRevision: main
+```
+
 
