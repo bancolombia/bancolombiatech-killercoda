@@ -139,12 +139,19 @@ kubectl -n argo-events rollout status --watch --timeout=600s deploy $DEPLOY
 En caso de que se deba configurar el deployment (parecido a Argo CD).
 
 ```bash
+DEPLOY=$(kubectl -n argo-events get deploy -l eventsource-name=github -o jsonpath='{.items[0].metadata.name}')
+
 kubectl patch deploy \
     $DEPLOY \
     -n argo-events \
     --type='json' \
     -p='[{
-        "op": "add"
+        "op": "replace",
+        "path": "/spec/template/spec/containers/0/args",
+        "value": [
+            "eventsource-service",
+            "--insecure"
+        ]
     }]'
 ```{{exec}}
 
