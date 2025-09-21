@@ -4,3 +4,6 @@ kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/m
 kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install-validating-webhook.yaml
 
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+
+#EventSource
+
