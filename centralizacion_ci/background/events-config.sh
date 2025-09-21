@@ -5,5 +5,31 @@ kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/m
 
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
-#EventSource
-
+#webhook - ingress
+kubectl apply -f - << 'EOF'
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: github-webhook-http-ingress
+  namespace: argo-events
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: github-eventsource-svc
+            port:
+              name: http
+    host: github-webhook.example.com
+  tls:
+  - hosts:
+    - github-webhook.example.com
+    secretName: github-webhook-ingress-http
+EOF
