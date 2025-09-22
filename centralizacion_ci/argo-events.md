@@ -97,13 +97,7 @@ spec:
 
 Se trata de la URL de conexión base entre el clúster de K8s y el repositorio Git. Killercoda habilita conexiones de red pública temporales para cada _ephemeral cluster_ (gracias a ello, pudimos acceder a la UI de Argo CD en la sección anterior). 
 
-Similar a como lo gestionamos en la sección de Argo CD, habilitaremos el puerto `12000` de nuestro cluster de Kubernetes y lo conectaremos al service de Argo Events (`svc/github-eventsource-svc`) de la siguiente forma:
-
-```bash
-kubectl -n argo-events port-forward --address 0.0.0.0 svc/github-eventsource-svc 12000:12000 > /dev/null &
-```{{exec}}
-
-En este punto, ya está configurada la URL base de Killercoda para entablar la comunicación con GitHub. Podemos obtenerla ejecutando el siguiente comando:
+En este punto, ya está configurada la URL base de Killercoda para entablar la comunicación con GitHub y podemos obtenerla ejecutando el siguiente comando:
 
 ```bash
 PORT=12000
@@ -124,43 +118,29 @@ PATCH=$(cat <<JSON
 ]
 JSON
 )
-
 kubectl -n argo-events patch eventsources github --type=json -p "$PATCH"
-```{{exec}}
 
-Finalmente, reemplazaremos el pod.
-
-```bash
 DEPLOY=$(kubectl -n argo-events get deploy -l eventsource-name=github -o jsonpath='{.items[0].metadata.name}')
-
 kubectl -n argo-events rollout status --watch --timeout=600s deploy $DEPLOY
 ```{{exec}}
 
-En caso de que se deba configurar el deployment (parecido a Argo CD).
+Similar a como lo gestionamos en la sección de Argo CD, habilitaremos el puerto `12000` de nuestro cluster de Kubernetes y lo conectaremos al service de Argo Events (`svc/github-eventsource-svc`) de la siguiente forma:
 
 ```bash
-DEPLOY=$(kubectl -n argo-events get deploy -l eventsource-name=github -o jsonpath='{.items[0].metadata.name}')
-
-kubectl patch deploy \
-    $DEPLOY \
-    -n argo-events \
-    --type='json' \
-    -p='[{
-        "op": "replace",
-        "path": "/spec/template/spec/containers/0/args",
-        "value": [
-            "eventsource-service",
-            "--insecure"
-        ]
-    }]'
+kubectl -n argo-events port-forward --address 0.0.0.0 svc/github-eventsource-svc 12000:12000 > /dev/null &
 ```{{exec}}
 
 ### 2.3. Configuración del Webhook (GitHub)
 
+Llegados a este punto, ya están en funcionamiento todas las configuraciones del clúster para recibir los eventos desde GitHub via Webhook. Sólo debemos registrarlos en GitHub, como se muestra en la Figura 3.
 
+![](./images/webhook.png)
 
+Figura 3. Configuración del Webhook en GitHub.
 
 ## 3. Sensor
+
+
 
 
 ## 4. Trigger
