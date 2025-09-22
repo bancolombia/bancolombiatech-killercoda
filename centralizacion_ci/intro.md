@@ -8,4 +8,4 @@ En el presente demo, accederás a las configuraciones base de las herramientas d
 
 __IMPORTANTE:__ espera a que termine la instalación de paquetes antes de continuar.
 
-__Creado por:__ Juan David Argüello Plata ([LinkedIn Profile](https://www.linkedin.com/in/jdarp/))
+__Creado por:__ Juan David Argüello Plata ([LinkedIn](https://www.linkedin.com/in/jdarp/))
