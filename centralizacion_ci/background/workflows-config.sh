@@ -3,8 +3,6 @@ kubectl create ns argo
 kubectl apply -n argo -f https://github.com/argoproj/argo/releases/download/v3.7.2/install.yaml
 kubectl -n argo wait deploy --all --for condition=Available --timeout 2m
 
-kubectl -n argo wait deploy --all --for condition=Available --timeout 2m
-
 #rbac
 kubectl create serviceaccount argo-workflow -n argo
 
