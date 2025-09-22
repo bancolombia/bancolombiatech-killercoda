@@ -7,3 +7,5 @@ En el presente demo, accederás a las configuraciones base de las herramientas d
 * __Argo Workflows:__ gestiona la lógica interna de los pipelines a través de objetos de Kubernetes.
 
 __IMPORTANTE:__ espera a que termine la instalación de paquetes antes de continuar.
+
+__Creado por:__ Juan David Argüello Plata ([LinkedIn Profile](https://www.linkedin.com/in/jdarp/))

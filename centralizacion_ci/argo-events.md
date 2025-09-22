@@ -138,13 +138,15 @@ Llegados a este punto, ya están en funcionamiento todas las configuraciones del
 
 Figura 3. Configuración del Webhook en GitHub.
 
-## 3. Sensor
+Ahora, cada vez que se haga una operación de `push` en alguno de los repositorios registrados activará el Webhook y enviará la información hacia este clúster en Killercoda.
 
+## 3. Sensor y Triggers
 
+Mientras el `EventSource` declara la conexión entre el clúster y la fuente de datos (o eventos); el `Sensor` analiza las características del evento y ejecuta ciertas _acciones_ a través de `Triggers`. Aquí es donde conectamos el repositorio de negocio en GitHub (desarrollo frontend o backend, por ejemplo) con nuestro clúster para la ejecución de pipelines con Argo Workflows que definimos en la sección anterior, como se muestra en la Figura 4.
 
+![](./images/argo-events-architecture.png)
 
-## 4. Trigger
-
+Figura 4. Arquitectura base de Argo Events.
 
 
 
