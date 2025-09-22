@@ -1,6 +1,6 @@
 #argo
 kubectl create ns argo
-kubectl apply -n argo -f https://github.com/argoproj/argo/releases/download/v3.7.2/install.yaml
+kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
 
 #rbac
 kubectl create serviceaccount argo-workflow -n argo
