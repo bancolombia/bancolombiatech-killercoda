@@ -24,5 +24,5 @@ Todos los manifiestos de K8s de Argo Workflows que vamos a gestionar los crearem
 
 ## 2. Argo Server
 
-Similar a Argo CD, Argo Workflows también cuenta con una UI que mejora la experiencia del desarrollador (DevEx). 
+Similar a Argo CD, Argo Workflows también cuenta con una UI que mejora la experiencia del desarrollador (DevEx). Puedes acceder a la consola haciendo [click aquí]({{TRAFFIC_HOST2_2746}}).
 
