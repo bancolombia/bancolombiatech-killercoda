@@ -1,12 +1,12 @@
-#argo-workflows
-kubectl create ns argo-workflows
-kubectl apply -n argo-workflows -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
-kubectl -n argo-workflows wait deploy --all --for condition=Available --timeout 2m
+#argo
+kubectl create ns argo
+kubectl apply -n argo -f https://github.com/argoproj/argo/releases/download/v3.7.2/install.yaml
+kubectl -n argo wait deploy --all --for condition=Available --timeout 2m
 
-kubectl -n argo-workflows wait deploy --all --for condition=Available --timeout 2m
+kubectl -n argo wait deploy --all --for condition=Available --timeout 2m
 
 #rbac
-kubectl create serviceaccount argo-workflow -n argo-workflows
+kubectl create serviceaccount argo-workflow -n argo
 
 cat <<EOF | kubectl apply -f - >/dev/null
 apiVersion: rbac.authorization.k8s.io/v1
@@ -35,13 +35,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: argo-workflow
-  namespace: argo-workflows
+  namespace: argo
 EOF
 
 #argo server
 kubectl patch deployment \
   argo-server \
-  --namespace argo-workflows \
+  --namespace argo \
   --type='json' \
   -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": [
   "server",
@@ -51,6 +51,6 @@ kubectl patch deployment \
 {"op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe/httpGet/scheme", "value": "HTTP"}
 ]'
 
-kubectl -n argo-workflows rollout status --watch --timeout=600s deployment/argo-server
+kubectl -n argo rollout status --watch --timeout=600s deployment/argo-server
 
-kubectl -n argo-workflows port-forward --address 0.0.0.0 svc/argo-server 2746:2746 > /dev/null &
+kubectl -n argo port-forward --address 0.0.0.0 svc/argo-server 2746:2746 > /dev/null &
