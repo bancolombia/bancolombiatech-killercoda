@@ -38,7 +38,7 @@ Para lograrlo, crearemos `ClusterWorkflowTemplates`, que se tratan de CRDs de K8
 
 ![](./images/pipeline.png)
 
-Figura 2. Pipeline CI.
+Figura 2. Pipeline de Build.
 
 Como se aprecia en la Figura 2, el pipeline consiste de los siguientes _steps_:
 
@@ -105,11 +105,39 @@ spec:
   templates:
   - name: git-clone
     inputs:
-      parameters:
-      - name: message
-    container:
-      image: busybox
-      command: [echo]
-      args: ["{{inputs.parameters.message}}"]
+        parameters:
+          - name: repo_url
+            value: "{{workflow.parameters.repo_url}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      container:
+        image: alpine/git:2.45.2
+        workingDir: /workspace
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        env:
+          - name: GIT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: git-cred
+                key: token
+        command: [sh, -euxc]
+        args:
+          - |
+            repo="{{inputs.parameters.repo_url}}"
+            rev="{{inputs.parameters.revision}}"
+            # If the repo URL is HTTPS GitHub, inject token (PAT or fine-grained token)
+            if echo "$repo" | grep -q 'https://github.com/'; then
+              repo="$(echo "$repo" | sed "s#https://#https://${GIT_TOKEN}@#")"
+            fi
+            git clone --depth 1 --branch "$rev" "$repo" src
+            cd src
+            git rev-parse --short HEAD | tee /workspace/shortsha
+      outputs:
+        parameters:
+          - name: shortsha
+            valueFrom:
+              path: /workspace/shortsha
 ```{{copy}}
 
