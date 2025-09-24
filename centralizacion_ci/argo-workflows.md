@@ -94,7 +94,7 @@ spec:
 
 ### 3.1. Git clone
 
-Para la clonación del repositorio, usaremos un contenedor cuya imagen base esté basada en `git`. El template se puede apreciar a continuación.
+Para la clonación del repositorio, usaremos un contenedor cuya imagen base pueda ejecutar operaciones `git`. El template se puede apreciar a continuación.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
