@@ -28,6 +28,43 @@ Similar a Argo CD, Argo Workflows también cuenta con una UI que mejora la exper
 
 ### 2.1. Configuración RBAC
 
+La ejecución de `Workflows` emplea un `serviceaccount` para su ejecución. Si no se especifica, usará el valor por `default`. En condiciones normales, esto no funcionará dado que las últimas versiones de Kubernetes emplean el __principio de mínimos privilegios__. Debido a ello, es necesario configurar un `serviceaccount` por cada `namespace` que contenga los permisos necesarios para la ejecución de sus opearciones.
+
+En nuestro caso, configuraremos el siguiente `serviceaccount` y `namespace`:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: inversion
+spec: {}
+status: {}
+```
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-workflow
+  namespace: inversion
+```
+
+Ahora, asociaremos el `ClusterRole` de `admin` de la siguiente forma:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: inversiones-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- kind: ServiceAccount
+  name: argo-workflow
+  namespace: inversion
+```
 
 
 ## 3. Cluster Templates
@@ -54,10 +91,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: ci-pipeline
-  namespace: argo
+  namespace: inversiones
 spec:
   entrypoint: pipeline
-  serviceAccountName: ci-runner-sa
+  serviceAccountName: argo-workflow
   onExit: notify
   arguments:
     parameters:
@@ -78,18 +115,15 @@ spec:
                 name: workflow-clone-template
                 template: git-clone
                 clusterScope: true
-          - name: deps
-            template: install-deps
-            dependencies: [clone]
-          - name: lint
+          - name: testing
             template: lint
-            dependencies: [deps]
-          - name: test
+            dependencies: [clone]
+          - name: security_checks
             template: test
-            dependencies: [deps]
+            dependencies: [clone]
           - name: build-image
             template: build-image
-            dependencies: [lint, test]
+            dependencies: [testing, security_checks]
 ```{{copy}}
 
 ### 3.1. Git clone
@@ -141,3 +175,10 @@ spec:
               path: /workspace/shortsha
 ```{{copy}}
 
+### 3.2. Calidad
+
+Para la evaluación de la calidad del software, utilizaremos el siguiente template:
+
+```yaml
+
+```{{copy}}
