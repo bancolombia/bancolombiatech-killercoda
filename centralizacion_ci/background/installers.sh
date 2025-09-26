@@ -12,8 +12,8 @@ helm install external-secrets \
     --create-namespace \
 
 #MinIO
-helm repo add minio https://charts.min.io/ # official minio Helm charts
-helm repo update
-helm install argo-artifacts minio/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
+#helm repo add minio https://charts.min.io/ # official minio Helm charts
+#helm repo update
+#helm install argo-artifacts minio/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
 
 
