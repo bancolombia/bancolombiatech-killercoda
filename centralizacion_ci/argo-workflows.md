@@ -188,35 +188,35 @@ spec:
   templates:
   - name: git-clone
     inputs:
-        parameters:
-          - name: repo_url
-            value: "{{workflow.parameters.repo_url}}"
-          - name: revision
-            value: "{{workflow.parameters.revision}}"
-      container:
-        image: alpine/git:2.45.2
-        workingDir: /workspace
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace
-        env:
-          - name: GIT_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: github-creds
-                key: token
-        command: [sh, -euxc]
-        args:
-          - |
-            repo="{{inputs.parameters.repo_url}}"
-            rev="{{inputs.parameters.revision}}"
-            # If the repo URL is HTTPS GitHub, inject token (PAT or fine-grained token)
-            if echo "$repo" | grep -q 'https://github.com/'; then
-              repo="$(echo "$repo" | sed "s#https://#https://${GIT_TOKEN}@#")"
-            fi
-            git clone --depth 1 --branch "$rev" "$repo" src
-      outputs:
-        artifacts:
+      parameters:
+        - name: repo_url               
+        - name: revision            
+    container:
+      image: alpine/git:2.45.2
+      workingDir: /workspace
+      volumeMounts:
+        - name: workspace               
+          mountPath: /workspace
+      env:
+        - name: GIT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-creds        
+              key: token
+      command: [sh, -euxc]
+      args:
+        - |
+          repo="{{inputs.parameters.repo_url}}"
+          rev="{{inputs.parameters.revision}}"
+
+          # inject token for HTTPS GitHub remotes
+          if echo "$repo" | grep -q '^https://github.com/'; then
+            repo="${repo/https:\/\//https:\/\/${GIT_TOKEN}@}"
+          fi
+
+          git clone --depth 1 --branch "$rev" "$repo" src
+    outputs:
+      artifacts:
         - name: repo
           path: /workspace/src
 ```{{copy}}
@@ -224,6 +224,11 @@ spec:
 ### 3.2. Calidad
 
 Para la evaluación de la calidad del software, utilizaremos el siguiente template:
+
+
+### 3.5. `Workflow` para testing
+
+Ahora, para corroborar que todas los templates fueron debidamente configurados, ejecutaremos el siguiente Workflow en el repositorio de tu preferencia. Debe ser un desarrollo Java para que funcione y evalúe todos los _steps_.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -236,18 +241,25 @@ spec:
   entrypoint: clone-example
   arguments:
     parameters:
-      - name: repo_url             
-      - name: revision                       
+      - name: repo_url
+      - name: revision
   volumes:
     - name: workspace
       emptyDir: {}
   templates:
-  - name: clone-example
-    dag:
-      tasks:
-        - name: clone
-          templateRef:
+    - name: clone-example
+      dag:
+        tasks:
+          - name: clone
+            templateRef:
               name: workflow-clone-template
               template: git-clone
               clusterScope: true
+            arguments:
+              parameters:
+                - name: repo_url
+                  value: "{{workflow.parameters.repo_url}}"
+                - name: revision
+                  value: "{{workflow.parameters.revision}}"
+
 ```{{copy}}
