@@ -59,7 +59,7 @@ data:
   artifact-repository: |
     s3:
       bucket: pipeline-artifacts-bucket
-      endpoint: argo-artifacts.argo-artifacts.svc.cluster.local:9000
+      endpoint: argo-artifacts.argo-artifacts.svc.cluster.local:9090
       insecure: true
       accessKeySecret:
         name: minio-creds
