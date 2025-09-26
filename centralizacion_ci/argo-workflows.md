@@ -28,7 +28,28 @@ Similar a Argo CD, Argo Workflows también cuenta con una UI que mejora la exper
 
 ### 2.1. MinIO
 
+MinIO es un _"Object Storage"_ similar, y compatible, a AWS S3. Sirve para almacenar objetos (blobs) de cualquier tipo. En nuestro caso, lo usaremos para almacenar los artefactos reutilizables derivados de la ejecución de pipelines.
 
+Para acceder a la consola de MinIO, puedes hacer [click aquí]({{TRAFFIC_HOST1_9090}}).
+
+Las credenciales de conexión son:
+
+* __Username:__ admin
+* __Password:__ ejecuta el siguiente comando para conocer la contraseña:
+
+```bash
+k get secret -n argo-artifacts argo-artifacts -o jsonpath="{.data.root-password}" | base64 -d
+```{{exec}}
+
+Ahora, entraremos al servicio y crearemos un bucket que llamaremos `pipeline-artifacts`, que será donde almacenaremos nuestros artefactos.
+
+#### 2.1.1 Configuración en Argo
+
+Ahora que tenemos nuestro _Object Storage_ y un bucket registrado, debemos relacionarlo con Argo para que, cada vez que se cree un artefacto, lo almacene allí. Para ello:
+
+```yaml
+
+```{{copy}}
 
 ### 2.2. Configuración RBAC
 
