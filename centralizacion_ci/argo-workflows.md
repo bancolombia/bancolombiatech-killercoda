@@ -22,7 +22,7 @@ README.md
 
 Todos los manifiestos de K8s de Argo Workflows que vamos a gestionar los crearemos en el path: `argo/workflows`.
 
-## 2. Argo Server
+## 2. Argo Server + Prerrequisitos
 
 Similar a Argo CD, Argo Workflows también cuenta con una UI que mejora la experiencia del desarrollador (DevEx). Puedes acceder a la consola haciendo [click aquí]({{TRAFFIC_HOST1_2746}}).
 
@@ -68,6 +68,12 @@ data:
         name: minio-creds
         key: secretkey
 ```{{copy}}
+
+Requeriremos usar nuestro token de GitHub, configurado en la sección anterior, para clonar los repositorios de interés. Para ello, lo registraremos como un secreto del clúster a través del siguiente comando:
+
+```bash
+k create secret generic -n argo github-creds --from-literal=username=$GITHUB_USERNAME --from-literal=token=$GITHUB_TOKEN
+```{{exec}}
 
 ### 2.2. Configuración RBAC
 
@@ -132,10 +138,9 @@ El template que reune todos los steps numerados con anterioridad se puede apreci
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: ClusterWorkflowTemplate
 metadata:
   name: ci-pipeline
-  namespace: inversiones
 spec:
   entrypoint: pipeline
   serviceAccountName: argo-workflow
@@ -198,7 +203,7 @@ spec:
           - name: GIT_TOKEN
             valueFrom:
               secretKeyRef:
-                name: git-cred
+                name: github-creds
                 key: token
         command: [sh, -euxc]
         args:
@@ -210,13 +215,10 @@ spec:
               repo="$(echo "$repo" | sed "s#https://#https://${GIT_TOKEN}@#")"
             fi
             git clone --depth 1 --branch "$rev" "$repo" src
-            cd src
-            git rev-parse --short HEAD | tee /workspace/shortsha
       outputs:
-        parameters:
-          - name: shortsha
-            valueFrom:
-              path: /workspace/shortsha
+        artifacts:
+        - name: repo
+          path: /workspace/src
 ```{{copy}}
 
 ### 3.2. Calidad
@@ -224,5 +226,28 @@ spec:
 Para la evaluación de la calidad del software, utilizaremos el siguiente template:
 
 ```yaml
-
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: artifact-passing-
+  namespace: argo
+spec:
+  serviceAccountName: argo-workflow
+  entrypoint: clone-example
+  arguments:
+    parameters:
+      - name: repo_url             
+      - name: revision                       
+  volumes:
+    - name: workspace
+      emptyDir: {}
+  templates:
+  - name: clone-example
+    dag:
+      tasks:
+        - name: clone
+          templateRef:
+              name: workflow-clone-template
+              template: git-clone
+              clusterScope: true
 ```{{copy}}

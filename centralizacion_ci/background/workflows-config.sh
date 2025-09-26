@@ -2,6 +2,17 @@
 kubectl create ns argo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
 
+#argo-cli
+ARGO_OS="darwin"
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  ARGO_OS="linux"
+fi
+
+curl -sLO "https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/argo-$ARGO_OS-amd64.gz"
+gunzip "argo-$ARGO_OS-amd64.gz"
+chmod +x "argo-$ARGO_OS-amd64"
+mv "./argo-$ARGO_OS-amd64" /usr/local/bin/argo
+
 #rbac
 kubectl create serviceaccount argo-workflow -n argo
 

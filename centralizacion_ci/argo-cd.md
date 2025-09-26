@@ -9,12 +9,20 @@ Para empezar, necesitaremos crear un repositorio. En este demo, usaremos GitHub,
 El repositorio podría tomar cualquier nombre. Ahora, sólo tendrás que compartir la información del repo y el token como variables de entorno:
 
 ```bash
-export GIT_REPO=<nombre_del_repo>
-```
+export GITHUB_USERNAME=<username>
+```{{copy}}
 
 ```bash
 export GITHUB_TOKEN=<token>
-```
+```{{copy}}
+
+```bash
+export GITHUB_REPO=<repo_name>
+```{{copy}}
+
+```bash
+git clone https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_USERNAME/$GITHUB_REPO
+```{{exec}}
 
 ### 1.1. Adecuación del repositorio
 
