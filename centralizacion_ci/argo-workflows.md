@@ -54,12 +54,12 @@ metadata:
   name: artifact-repositories
   namespace: argo
   annotations:
-    workflows.argoproj.io/default-artifact-repository: artifact-repository
+    workflows.argoproj.io/default-artifact-repository: default-artifact-repository
 data:
-  artifact-repository: |
+  default-artifact-repository: |
     s3:
       bucket: pipeline-artifacts-bucket
-      endpoint: argo-artifacts.argo-artifacts.svc.cluster.local:9090
+      endpoint: argo-artifacts.argo-artifacts.svc.cluster.local:9000
       insecure: true
       accessKeySecret:
         name: minio-creds
@@ -99,6 +99,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: inversiones-admin
+  namespace: inversion
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

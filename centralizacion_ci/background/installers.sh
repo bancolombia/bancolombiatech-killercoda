@@ -17,4 +17,6 @@ helm install argo-artifacts oci://registry-1.docker.io/bitnamicharts/minio --set
 
 kubectl -n argo-artifacts rollout status --watch --timeout=600s deployment/argo-artifacts-console
 kubectl -n argo-artifacts port-forward --address 0.0.0.0 svc/argo-artifacts-console 9090:9090 > /dev/null &
-#kubectl -n argo-artifacts port-forward --address 0.0.0.0 svc/argo-artifacts 9000:9000 > /dev/null &
+
+kubectl -n argo-artifacts rollout status --watch --timeout=600s deployment/argo-artifacts
+kubectl -n argo-artifacts port-forward --address 0.0.0.0 svc/argo-artifacts 9000:9000 > /dev/null &
