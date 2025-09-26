@@ -59,14 +59,14 @@ data:
   artifact-repository: |
     s3:
       bucket: pipeline-artifacts-bucket
-      endpoint: http://127.0.0.1:9000
+      endpoint: argo-artifacts.argo-artifacts.svc.cluster.local:9000
       insecure: true
       accessKeySecret:
-        name: argo-artifacts
-        key: root-user
+        name: minio-creds
+        key: accesskey
       secretKeySecret:
-        name: argo-artifacts
-        key: root-password
+        name: minio-creds
+        key: secretkey
 ```{{copy}}
 
 ### 2.2. Configuración RBAC
@@ -82,7 +82,7 @@ metadata:
   name: inversion
 spec: {}
 status: {}
-```
+```{{copy}}
 
 ```yaml
 apiVersion: v1
@@ -90,7 +90,7 @@ kind: ServiceAccount
 metadata:
   name: argo-workflow
   namespace: inversion
-```
+```{{copy}}
 
 Ahora, asociaremos el `ClusterRole` de `admin` de la siguiente forma:
 
@@ -107,7 +107,7 @@ subjects:
 - kind: ServiceAccount
   name: argo-workflow
   namespace: inversion
-```
+```{{copy}}
 
 
 ## 3. Cluster Templates

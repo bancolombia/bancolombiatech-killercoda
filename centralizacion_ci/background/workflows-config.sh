@@ -51,3 +51,6 @@ kubectl patch deployment \
 kubectl -n argo rollout status --watch --timeout=600s deployment/argo-server
 
 kubectl -n argo port-forward --address 0.0.0.0 svc/argo-server 2746:2746 > /dev/null &
+
+#argo-artifacts
+k create secret generic -n argo minio-creds --from-literal=accesskey=$(k get secrets -n argo-artifacts argo-artifacts -o jsonpath="{.data.root-user}" | base64 -d) --from-literal=secretkey=$(k get secrets -n argo-artifacts argo-artifacts -o jsonpath="{.data.root-password}" | base64 -d)
