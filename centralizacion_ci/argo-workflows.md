@@ -41,14 +41,32 @@ Las credenciales de conexión son:
 k get secret -n argo-artifacts argo-artifacts -o jsonpath="{.data.root-password}" | base64 -d
 ```{{exec}}
 
-Ahora, entraremos al servicio y crearemos un bucket que llamaremos `pipeline-artifacts`, que será donde almacenaremos nuestros artefactos.
+Ahora, entraremos al servicio y crearemos un bucket que llamaremos `pipeline-artifacts-bucket`, que será donde almacenaremos nuestros artefactos.
 
 #### 2.1.1 Configuración en Argo
 
-Ahora que tenemos nuestro _Object Storage_ y un bucket registrado, debemos relacionarlo con Argo para que, cada vez que se cree un artefacto, lo almacene allí. Para ello:
+Ahora que tenemos nuestro _Object Storage_ y un bucket registrado, debemos relacionarlo con Argo para que, cada vez que se cree un artefacto, lo almacene allí. Para ello, debemos crear el siguiente `ConfigMap` que se relacionará con los pipelines ejecutados de forma automática.
 
 ```yaml
-
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: artifact-repositories
+  namespace: argo
+  annotations:
+    workflows.argoproj.io/default-artifact-repository: artifact-repository
+data:
+  artifact-repository: |
+    s3:
+      bucket: pipeline-artifacts-bucket
+      endpoint: http://127.0.0.1:9000
+      insecure: true
+      accessKeySecret:
+        name: argo-artifacts
+        key: root-user
+      secretKeySecret:
+        name: argo-artifacts
+        key: root-password
 ```{{copy}}
 
 ### 2.2. Configuración RBAC
