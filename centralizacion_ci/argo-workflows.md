@@ -273,11 +273,12 @@ spec:
     parameters:
       - name: repo_url
       - name: revision
+      - name: project_dir
   volumes:
     - name: workspace
       emptyDir: {}
   templates:
-    - name: clone-example
+    - name: build-example
       dag:
         tasks:
           - name: clone
@@ -291,4 +292,17 @@ spec:
                   value: "{{workflow.parameters.repo_url}}"
                 - name: revision
                   value: "{{workflow.parameters.revision}}"
+          - name: test-coverage
+            dependencies: [clone]
+            templateRef:
+              name: test-coverage-templates
+              template: gradle-test-coverage
+              clusterScope: true
+            arguments:
+              parameters:
+                - name: project_dir
+                  value: "{{workflow.parameters.project_dir}}"
+              artifacts:
+                - name: clone
+                  from: "{{tasks.clone.outputs.artifacts.repo}}"
 ```{{copy}}
