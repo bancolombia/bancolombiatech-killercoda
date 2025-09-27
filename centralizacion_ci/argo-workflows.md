@@ -183,7 +183,7 @@ Para la clonación del repositorio, usaremos un contenedor cuya imagen base pued
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: workflow-clone-template
+  name: git-clone-template
 spec:
   templates:
   - name: git-clone
@@ -225,6 +225,36 @@ spec:
 
 Para la evaluación de la calidad del software, utilizaremos el siguiente template:
 
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: test-coverage-templates
+spec:
+  templates:
+  - name: gradle-test-coverage
+    inputs:
+      artifacts:
+      - name: clone
+        path: workspace/repo
+      parameters:
+      - name: project_dir           
+    container:
+      image: gradle:8.9-jdk17-alpine
+      workingDir: /workspace/repo
+      volumeMounts:
+        - name: workspace               
+          mountPath: /workspace
+      command: [sh, -euxc]
+      args:
+        - |
+          cd {{inputs.parameters.project_dir}}
+          ./gradlew clean test jacocoTestReport sonarqube --info
+    outputs:
+      artifacts:
+        - name: jacoco-report
+          path: /workspace/repo/{{inputs.parameters.project_dir}}/target/site/jacoco/jacoco.xml
+```{{copy}}
 
 ### 3.5. `Workflow` para testing
 
@@ -238,7 +268,7 @@ metadata:
   namespace: argo
 spec:
   serviceAccountName: argo-workflow
-  entrypoint: clone-example
+  entrypoint: build-example
   arguments:
     parameters:
       - name: repo_url
@@ -252,7 +282,7 @@ spec:
         tasks:
           - name: clone
             templateRef:
-              name: workflow-clone-template
+              name: git-clone-template
               template: git-clone
               clusterScope: true
             arguments:
@@ -261,5 +291,4 @@ spec:
                   value: "{{workflow.parameters.repo_url}}"
                 - name: revision
                   value: "{{workflow.parameters.revision}}"
-
 ```{{copy}}
