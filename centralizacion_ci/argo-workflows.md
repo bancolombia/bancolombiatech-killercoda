@@ -134,47 +134,6 @@ Como se aprecia en la Figura 2, el pipeline consiste de los siguientes _steps_:
 3. __Security check:__ ejecuta escaneo de vulnerabilidades de código.
 4. __Nuevo artefacto:__ genera y publica un nuevo artefacto versionado del desarrollo.
 
-El template que reune todos los steps numerados con anterioridad se puede apreciar a continuación:
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: ClusterWorkflowTemplate
-metadata:
-  name: ci-pipeline
-spec:
-  entrypoint: pipeline
-  serviceAccountName: argo-workflow
-  onExit: notify
-  arguments:
-    parameters:
-      - name: repo_url             
-      - name: revision             
-      - name: context_dir          
-      - name: image                
-      - name: image_tag            
-  volumes:
-    - name: workspace
-      emptyDir: {}
-  templates:
-    - name: pipeline
-      dag:
-        tasks:
-          - name: clone
-            templateRef:
-                name: workflow-clone-template
-                template: git-clone
-                clusterScope: true
-          - name: testing
-            template: lint
-            dependencies: [clone]
-          - name: security_checks
-            template: test
-            dependencies: [clone]
-          - name: build-image
-            template: build-image
-            dependencies: [testing, security_checks]
-```{{copy}}
-
 ### 3.1. Git clone
 
 Para la clonación del repositorio, usaremos un contenedor cuya imagen base pueda ejecutar operaciones `git`. El template se puede apreciar a continuación.
@@ -400,12 +359,14 @@ metadata:
   namespace: argo
 spec:
   serviceAccountName: argo-workflow
-  entrypoint: build-example
+  entrypoint: pipeline-build
   arguments:
     parameters:
       - name: repo_url
       - name: revision
       - name: project_dir
+      - name: image_name
+      - name: image_tag
   volumes:
     - name: workspace
       emptyDir: {}
@@ -450,4 +411,21 @@ spec:
               artifacts:
                 - name: clone
                   from: "{{tasks.clone.outputs.artifacts.repo}}"
+          - name: final-artifact
+            dependencies: [test-coverage, security-check]
+            templateRef:
+              name: final-artifact-templates
+              template: podman-image
+              clusterScope: true
+            arguments:
+              parameters:
+                - name: image_name
+                  value: {{workflow.parameters.image_name}}
+                - name: image_tag
+                  value: {{workflow.parameters.image_tag}}
+                - name: project_dir
+                  value: "{{workflow.parameters.project_dir}}"
+              artifacts:
+                - name: clone
+                  from: {{tasks.clone.outputs.artifacts.repo}}
 ```{{copy}}
