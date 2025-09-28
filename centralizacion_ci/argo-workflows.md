@@ -223,7 +223,7 @@ spec:
 
 ### 3.2. Calidad
 
-Para la evaluación de la calidad y ejecución de reportes de cobertura, utilizaremos el siguiente template:
+Para la evaluación de la calidad y ejecución de reportes de cobertura. Para el correcto envío del reporte, tendremos que gestionar un token de autenticación (tipo PAT - _"Personal Access Token"_). Una vez lo tengamos, lo registraremos como variable de entorno a través del siguiente comando:
 
 ```bash
 export SONAR_TOKEN=<token>
@@ -274,58 +274,9 @@ spec:
           path: /workspace/repo/{{inputs.parameters.project_dir}}/build/reports/jacoco/test/jacocoTestReport.xml
 ```{{copy}}
 
-## 3.3. Calidad - SonarQube Cloud
-
-En este punto, ya se disponen del reporte de pruebas de cobertura del paso anterior, en formato __xml__. Ahora, sólo debemos enviarlo a la cuenta de SonarQube Cloud.
-
-Para el correcto envío del reporte, tendremos que gestionar un token de autenticación (tipo PAT - _"Personal-Access Token"_). Una vez lo tengamos, lo registraremos como variable de entorno a través del siguiente comando:
-
-```bash
-export SONAR_TOKEN=<token>
-```{{copy}}
-
-Ahora, crearemos el secreto del token de Sonar:
-
-```bash
-k create secret generic -n argo sonar-creds --from-literal=token=$SONAR_TOKEN
-```{{exec}}
-
-Finalmente, registraremos el template correspondiente.
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: ClusterWorkflowTemplate
-metadata:
-  name: static-code-templates
-spec:
-  templates:
-  - name: sonarqube-cloud
-    inputs:
-      artifacts:
-      - name: reporte-cobertura
-        path: /workspace
-      parameters:
-      - name: organization
-      - name: projectKey 
-      parameters:
-      - name: project_dir           
-    container:
-      image: sonarsource/sonar-scanner-cli:11.4.0.2044_7.2.0
-      workingDir: /workspace
-      volumeMounts:
-        - name: workspace               
-          mountPath: /workspace
-      command: [sh, -euxc]
-      args:
-        - |
-          echo "sonar.organization={{inputs.parameters.organization}}" > sonar-project.properties
-          echo "sonar.projectKey={{inputs.parameters.projectKey}}" >> sonar-project.properties
-          echo "sonar.host.url=https://sonarcloud.io" >> sonar-project.properties
-
-          cat sonar-project.properties
+## 3.3. Análisis de seguridad
 
 
-```{{copy}}
 
 ### 3.5. `Workflow` para testing
 
