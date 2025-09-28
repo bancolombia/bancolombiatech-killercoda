@@ -38,7 +38,7 @@ Las credenciales de conexión son:
 * __Password:__ ejecuta el siguiente comando para conocer la contraseña:
 
 ```bash
-k get secret -n argo-artifacts argo-artifacts -o jsonpath="{.data.root-password}" | base64 -d
+echo "MinIO password = $(k get secret -n argo-artifacts argo-artifacts -o jsonpath="{.data.root-password}" | base64 -d)"
 ```{{exec}}
 
 Ahora, entraremos al servicio y crearemos un bucket que llamaremos `pipeline-artifacts-bucket`, que será donde almacenaremos nuestros artefactos.
@@ -301,7 +301,7 @@ spec:
       command: [sh, -euxc]
       args:
         - |
-          $ trivy fs {{inputs.parameters.project_dir}} -f json -o results.json
+          trivy fs {{inputs.parameters.project_dir}} -f json -o results.json
     outputs:
       artifacts:
         - name: security-results
@@ -310,7 +310,81 @@ spec:
 
 ### 3.4. Artefacto final
 
+En este punto, suponemos que la operación de `push` en el repositorio ha cumplido con los estándares de calidad y seguridad definidos. Por lo que procederemos con la creación del artefacto final versionado. Para nuestro caso de ejemplo, estamos hablando de un microservicio de Spring Boot cuyo artefacto final debe ser una __imagen Docker__.
 
+Para ello, usaremos el registry público de __Docker Hub__ para almacenar el artefacto. Iniciaremos registrando las credenciales de nuestra cuenta de Docker Hub como variables de entorno:
+
+```bash
+export DOCKER_USERNAME=<username>
+```{{copy}}
+
+```bash
+export DOCKER_TOKEN=<token>
+```{{copy}}
+
+Ahora, almacenaremos las credenciales como un secreto de K8s.
+
+```bash
+k create secret generic -n argo docker-creds --from-literal=username=$DOCKER_USERNAME --from-literal=token=$DOCKER_TOKEN
+```{{exec}}
+
+Finalmente, registraremos el template para generar el artefacto.
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: final-artifact-templates
+spec:
+  templates:
+  - name: podman-image
+    inputs:
+      artifacts:
+      - name: clone
+        path: /workspace/repo
+      parameters:
+      - name: project_dir
+      - name: image_name
+      - name: image_tag           
+    container:
+      image: ubuntu:24.04
+      workingDir: /workspace/repo
+      volumeMounts:
+        - name: workspace               
+          mountPath: /workspace
+      command: [sh, -euxc]
+      env:
+        - name: DOCKERHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: docker-creds
+              key: username
+        - name: DOCKERHUB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: docker-creds
+              key: token
+      args:
+        - |
+          #Install Podman
+          sudo apt-get update
+          sudo apt-get -y install podman
+
+          #Image build
+          cd {{inputs.parameters.project_dir}}
+          export IMAGE="$DOCKERHUB_USERNAME/{{inputs.parameters.image_name}}:{{inputs.parameters.image_tag}}"
+          podman build -t $IMAGE .
+
+          #Save Image
+          podman save --format oci-archive --output /workspace/image-oci.tar "$IMAGE"
+
+          #Image push
+          podman push $IMAGE
+    outputs:
+      artifacts:
+        - name: image-artifact
+          path: /workspace/image-oci.tar
+```{{copy}}
 
 ### 3.5. `Workflow` para testing
 
