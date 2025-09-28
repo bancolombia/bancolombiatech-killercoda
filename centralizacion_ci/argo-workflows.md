@@ -306,7 +306,11 @@ spec:
       artifacts:
         - name: security-results
           path: /workspace/repo/results.json
-```
+```{{copy}}
+
+### 3.4. Artefacto final
+
+
 
 ### 3.5. `Workflow` para testing
 
