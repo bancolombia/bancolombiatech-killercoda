@@ -276,13 +276,43 @@ spec:
 
 ## 3.3. Análisis de seguridad
 
+Para el escaneo de seguridad, utilizaremos [Trivy](https://github.com/aquasecurity/trivy) como herramienta base. 
 
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: security-check-templates
+spec:
+  templates:
+  - name: trivy-scan
+    inputs:
+      artifacts:
+      - name: clone
+        path: /workspace/repo
+      parameters:
+      - name: project_dir           
+    container:
+      image: aquasec/trivy:0.66.0
+      workingDir: /workspace/repo
+      volumeMounts:
+        - name: workspace               
+          mountPath: /workspace
+      command: [sh, -euxc]
+      args:
+        - |
+          $ trivy fs {{inputs.parameters.project_dir}} -f json -o results.json
+    outputs:
+      artifacts:
+        - name: security-results
+          path: /workspace/repo/results.json
+```
 
 ### 3.5. `Workflow` para testing
 
 Para corroborar que todas los templates fueron debidamente configurados, ejecutaremos el siguiente Workflow en el repositorio de tu preferencia. Debe ser un desarrollo Java para que funcione y evalúe todos los _steps_. 
 
-__Nota:__ el siguiente manifiesto no debes registrarlo en el repositorio administrativo. Este `Workflow` es sólo para corroborar la funcionalidad del pipeline y su integración con los templates anteriormente definidos.
+__Nota:__ el siguiente manifiesto no debes registrarlo en el repositorio administrativo. Este `Workflow` es sólo para corroborar la funcionalidad del pipeline y su integración con los templates anteriormente definidos. Se debe correr de manera manual, con un repositorio escogido por ti.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
