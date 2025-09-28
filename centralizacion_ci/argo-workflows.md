@@ -359,4 +359,17 @@ spec:
               artifacts:
                 - name: clone
                   from: "{{tasks.clone.outputs.artifacts.repo}}"
+          - name: security-check
+            dependencies: [clone]
+            templateRef:
+              name: security-check-templates
+              template: trivy-scan
+              clusterScope: true
+            arguments:
+              parameters:
+                - name: project_dir
+                  value: "{{workflow.parameters.project_dir}}"
+              artifacts:
+                - name: clone
+                  from: "{{tasks.clone.outputs.artifacts.repo}}"
 ```{{copy}}
