@@ -236,11 +236,11 @@ spec:
     inputs:
       artifacts:
       - name: clone
-        path: workspace/repo
+        path: /workspace/repo
       parameters:
       - name: project_dir           
     container:
-      image: gradle:8.9-jdk17-alpine
+      image: gradle:jdk21-corretto-al2023
       workingDir: /workspace/repo
       volumeMounts:
         - name: workspace               
@@ -249,11 +249,11 @@ spec:
       args:
         - |
           cd {{inputs.parameters.project_dir}}
-          ./gradlew clean test jacocoTestReport sonarqube --info
+          ./gradlew clean test jacocoTestReport --info
     outputs:
       artifacts:
         - name: jacoco-report
-          path: /workspace/repo/{{inputs.parameters.project_dir}}/target/site/jacoco/jacoco.xml
+          path: /workspace/repo/{{inputs.parameters.project_dir}}/build/reports/jacoco/test/jacocoTestReport.xml
 ```{{copy}}
 
 ### 3.5. `Workflow` para testing
@@ -264,7 +264,7 @@ Ahora, para corroborar que todas los templates fueron debidamente configurados, 
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: artifact-passing-
+  generateName: pipeline-build-
   namespace: argo
 spec:
   serviceAccountName: argo-workflow
