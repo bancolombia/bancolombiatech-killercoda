@@ -223,7 +223,19 @@ spec:
 
 ### 3.2. Calidad
 
-Para la evaluación de la calidad del software, utilizaremos el siguiente template:
+Para la evaluación de la calidad y ejecución de reportes de cobertura, utilizaremos el siguiente template:
+
+```bash
+export SONAR_TOKEN=<token>
+```{{copy}}
+
+Ahora, crearemos el secreto del token de Sonar:
+
+```bash
+k create secret generic -n argo sonar-creds --from-literal=token=$SONAR_TOKEN
+```{{exec}}
+
+Finalmente, registraremos el template correspondiente.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -245,20 +257,81 @@ spec:
       volumeMounts:
         - name: workspace               
           mountPath: /workspace
+      env:
+        - name: SONAR_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: sonar-creds       
+              key: token
       command: [sh, -euxc]
       args:
         - |
           cd {{inputs.parameters.project_dir}}
-          ./gradlew clean test jacocoTestReport --info
+          ./gradlew clean test jacocoTestReport sonarqube --info
     outputs:
       artifacts:
-        - name: jacoco-report
+        - name: reporte-cobertura
           path: /workspace/repo/{{inputs.parameters.project_dir}}/build/reports/jacoco/test/jacocoTestReport.xml
+```{{copy}}
+
+## 3.3. Calidad - SonarQube Cloud
+
+En este punto, ya se disponen del reporte de pruebas de cobertura del paso anterior, en formato __xml__. Ahora, sólo debemos enviarlo a la cuenta de SonarQube Cloud.
+
+Para el correcto envío del reporte, tendremos que gestionar un token de autenticación (tipo PAT - _"Personal-Access Token"_). Una vez lo tengamos, lo registraremos como variable de entorno a través del siguiente comando:
+
+```bash
+export SONAR_TOKEN=<token>
+```{{copy}}
+
+Ahora, crearemos el secreto del token de Sonar:
+
+```bash
+k create secret generic -n argo sonar-creds --from-literal=token=$SONAR_TOKEN
+```{{exec}}
+
+Finalmente, registraremos el template correspondiente.
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: static-code-templates
+spec:
+  templates:
+  - name: sonarqube-cloud
+    inputs:
+      artifacts:
+      - name: reporte-cobertura
+        path: /workspace
+      parameters:
+      - name: organization
+      - name: projectKey 
+      parameters:
+      - name: project_dir           
+    container:
+      image: sonarsource/sonar-scanner-cli:11.4.0.2044_7.2.0
+      workingDir: /workspace
+      volumeMounts:
+        - name: workspace               
+          mountPath: /workspace
+      command: [sh, -euxc]
+      args:
+        - |
+          echo "sonar.organization={{inputs.parameters.organization}}" > sonar-project.properties
+          echo "sonar.projectKey={{inputs.parameters.projectKey}}" >> sonar-project.properties
+          echo "sonar.host.url=https://sonarcloud.io" >> sonar-project.properties
+
+          cat sonar-project.properties
+
+
 ```{{copy}}
 
 ### 3.5. `Workflow` para testing
 
-Ahora, para corroborar que todas los templates fueron debidamente configurados, ejecutaremos el siguiente Workflow en el repositorio de tu preferencia. Debe ser un desarrollo Java para que funcione y evalúe todos los _steps_.
+Para corroborar que todas los templates fueron debidamente configurados, ejecutaremos el siguiente Workflow en el repositorio de tu preferencia. Debe ser un desarrollo Java para que funcione y evalúe todos los _steps_. 
+
+__Nota:__ el siguiente manifiesto no debes registrarlo en el repositorio administrativo. Este `Workflow` es sólo para corroborar la funcionalidad del pipeline y su integración con los templates anteriormente definidos.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
