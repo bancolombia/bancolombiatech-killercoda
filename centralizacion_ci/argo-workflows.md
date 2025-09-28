@@ -308,9 +308,13 @@ spec:
     container:
       image: ubuntu:24.04
       workingDir: /workspace/repo
+      securityContext:
+        privileged: true
       volumeMounts:
         - name: workspace               
           mountPath: /workspace
+        - name: podman-lib
+          mountPath: /var/lib/containers 
       command: [sh, -euxc]
       env:
         - name: DOCKERHUB_USERNAME
@@ -326,8 +330,8 @@ spec:
       args:
         - |
           #Install Podman
-          sudo apt-get update
-          sudo apt-get -y install podman
+          apt-get update
+          apt-get -y install podman
 
           #Image build
           cd {{inputs.parameters.project_dir}}
@@ -338,6 +342,7 @@ spec:
           podman save --format oci-archive --output /workspace/image-oci.tar "$IMAGE"
 
           #Image push
+          podman login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_PASSWORD" docker.io
           podman push $IMAGE
     outputs:
       artifacts:
@@ -370,8 +375,10 @@ spec:
   volumes:
     - name: workspace
       emptyDir: {}
+    - name: podman-lib
+      emptyDir: {}
   templates:
-    - name: build-example
+    - name: pipeline-build
       dag:
         tasks:
           - name: clone
@@ -420,12 +427,12 @@ spec:
             arguments:
               parameters:
                 - name: image_name
-                  value: {{workflow.parameters.image_name}}
+                  value: "{{workflow.parameters.image_name}}"
                 - name: image_tag
-                  value: {{workflow.parameters.image_tag}}
+                  value: "{{workflow.parameters.image_tag}}"
                 - name: project_dir
                   value: "{{workflow.parameters.project_dir}}"
               artifacts:
                 - name: clone
-                  from: {{tasks.clone.outputs.artifacts.repo}}
+                  from: "{{tasks.clone.outputs.artifacts.repo}}"
 ```{{copy}}
