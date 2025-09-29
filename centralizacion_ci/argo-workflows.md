@@ -293,7 +293,7 @@ spec:
 
           #Image build
           cd {{inputs.parameters.project_dir}}
-          export IMAGE="$DOCKERHUB_USERNAME/{{inputs.parameters.image_name}}:{{inputs.parameters.image_tag}}"
+          export IMAGE="docker.io/$DOCKERHUB_USERNAME/{{inputs.parameters.image_name}}:{{inputs.parameters.image_tag}}"
           podman build -t $IMAGE .
 
           #Save Image
