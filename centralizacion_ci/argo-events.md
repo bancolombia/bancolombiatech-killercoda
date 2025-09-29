@@ -56,7 +56,7 @@ kind: Secret
 metadata:
   name: webhook-secret
   namespace: argo-events
-```
+```{{copy}}
 
 Ahora, crearemos el `EventSource` de la siguiente forma:
 
@@ -91,7 +91,7 @@ spec:
       insecure: true
       active: true
       contentType: json
-```
+```{{copy}}
 
 ### 2.2. Payload Url
 
@@ -148,5 +148,65 @@ Mientras el `EventSource` declara la conexión entre el clúster y la fuente de 
 
 Figura 4. Arquitectura base de Argo Events.
 
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-push
+spec:
+  template:
+    serviceAccountName: TODO
+  dependencies:
+    - name: new-commit
+      eventSourceName: github
+      eventName: push
+      filters:
+        data:
+          # Type of Github event that triggered the delivery: [pull_request, push, issues, label, ...]
+          # https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads
+          - path: headers.X-Github-Event
+            type: string
+            value:
+              - push
+  triggers:
+    - template:
+        name: github-workflow-trigger
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: pipeline-build-
+                namespace: argo
+              spec:
+                serviceAccountName: argo-workflow
+                entrypoint: pipeline-build
+                arguments:
+                  parameters:
+                    - name: repo_url
+                    - name: revision
+                volumes:
+                  - name: workspace
+                    emptyDir: {}
+                  - name: podman-lib
+                    emptyDir: {}
+                templates:
+                  - name: pipeline-build
+                    dag:
+                      tasks:
+                        - name: clone
+                          templateRef:
+                            name: git-clone-template
+                            template: git-clone
+                            clusterScope: true
+                          arguments:
+                            parameters:
+                              - name: repo_url
+                                value: "{{workflow.parameters.repo_url}}"
+                              - name: revision
+                                value: "{{workflow.parameters.revision}}"
+```
 
 
