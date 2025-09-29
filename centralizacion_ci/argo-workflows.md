@@ -43,7 +43,7 @@ echo "MinIO password = $(k get secret -n argo-artifacts argo-artifacts -o jsonpa
 
 Ahora, entraremos al servicio y crearemos un bucket que llamaremos `pipeline-artifacts-bucket`, que será donde almacenaremos nuestros artefactos.
 
-#### 2.1.1 Configuración en Argo
+#### 2.2 Configuración en Argo
 
 Ahora que tenemos nuestro _Object Storage_ y un bucket registrado, debemos relacionarlo con Argo para que, cada vez que se cree un artefacto, lo almacene allí. Para ello, debemos crear el siguiente `ConfigMap` que se relacionará con los pipelines ejecutados de forma automática.
 
@@ -69,53 +69,11 @@ data:
         key: secretkey
 ```{{copy}}
 
-Requeriremos usar nuestro token de GitHub, configurado en la sección anterior, para clonar los repositorios de interés. Para ello, lo registraremos como un secreto del clúster a través del siguiente comando:
+Requeriremos usar nuestro token de GitHub, configurado en la sección anterior, para clonar repositorios privados de interés. Para ello, lo registraremos como un secreto del clúster a través del siguiente comando:
 
 ```bash
 k create secret generic -n argo github-creds --from-literal=username=$GITHUB_USERNAME --from-literal=token=$GITHUB_TOKEN
 ```{{exec}}
-
-### 2.2. Configuración RBAC
-
-La ejecución de `Workflows` emplea un `serviceaccount` para su ejecución. Si no se especifica, usará el valor por `default`. En condiciones normales, esto no funcionará dado que las últimas versiones de Kubernetes emplean el __principio de mínimos privilegios__. Debido a ello, es necesario configurar un `serviceaccount` por cada `namespace` que contenga los permisos necesarios para la ejecución de sus opearciones.
-
-En nuestro caso, configuraremos el siguiente `serviceaccount` y `namespace`:
-
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: inversion
-spec: {}
-status: {}
-```{{copy}}
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: argo-workflow
-  namespace: inversion
-```{{copy}}
-
-Ahora, asociaremos el `ClusterRole` de `admin` de la siguiente forma:
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: inversiones-admin
-  namespace: inversion
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: admin
-subjects:
-- kind: ServiceAccount
-  name: argo-workflow
-  namespace: inversion
-```{{copy}}
-
 
 ## 3. Cluster Templates
 
