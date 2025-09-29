@@ -1,5 +1,3 @@
-# Centralización CI
-
 En el presente demo, accederás a las configuraciones base de las herramientas de _Argo Project_ para habilitar una estrategia de centralización de pipelines basada en GitOps. Para lograrlo, exploraremos específicamente:
 
 * __Argo CD:__ habilita GitOps para la gestión de configuraciones desde repositorios Git.
