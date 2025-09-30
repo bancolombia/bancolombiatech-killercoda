@@ -208,6 +208,49 @@ spec:
                                 value: "{{workflow.parameters.repo_url}}"
                               - name: revision
                                 value: "{{workflow.parameters.revision}}"
+                        - name: test-coverage
+                          dependencies: [clone]
+                          templateRef:
+                            name: test-coverage-templates
+                            template: gradle-test-coverage
+                            clusterScope: true
+                          arguments:
+                            parameters:
+                              - name: project_dir
+                                value: "{{tasks.clone.outputs.parameters.project_dir}}"
+                            artifacts:
+                              - name: clone
+                                from: "{{tasks.clone.outputs.artifacts.repo}}"
+                        - name: security-check
+                          dependencies: [clone]
+                          templateRef:
+                            name: security-check-templates
+                            template: trivy-scan
+                            clusterScope: true
+                          arguments:
+                            parameters:
+                              - name: project_dir
+                                value: "{{tasks.clone.outputs.parameters.project_dir}}"
+                            artifacts:
+                              - name: clone
+                                from: "{{tasks.clone.outputs.artifacts.repo}}"
+                        - name: final-artifact
+                          dependencies: [test-coverage, security-check]
+                          templateRef:
+                            name: final-artifact-templates
+                            template: podman-image
+                            clusterScope: true
+                          arguments:
+                            parameters:
+                              - name: image_name
+                                value: "{{tasks.clone.outputs.parameters.image_name}}"
+                              - name: image_tag
+                                value: "{{tasks.clone.outputs.parameters.image_tag}}"
+                              - name: project_dir
+                                value: "{{tasks.clone.outputs.parameters.project_dir}}"
+                            artifacts:
+                              - name: clone
+                                from: "{{tasks.clone.outputs.artifacts.repo}}"
           parameters:
             - src:
                 dependencyName: new-commit
@@ -219,8 +262,4 @@ spec:
               dest: spec.arguments.parameters.1.value
 ```{{copy}}
 
-El `Sensor` que acabamos de crear tomará un tiempo en acomodar su infraestructura.
 
-```bash
-kubectl -n argo-events rollout status --watch --timeout=600s deployment/TODO
-```{{copy}}

@@ -123,6 +123,8 @@ spec:
       command: [sh, -euxc]
       args:
         - |
+          apk add --no-cache jq
+          
           repo="{{inputs.parameters.repo_url}}"
           rev="{{inputs.parameters.revision}}"
 
