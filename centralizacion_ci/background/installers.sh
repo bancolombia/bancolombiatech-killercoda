@@ -13,7 +13,7 @@
 
 #MinIO
 kubectl create ns argo-artifacts
-helm install argo-artifacts oci://registry-1.docker.io/bitnamicharts/minio --version 17.0.16 --set image.repository=bitnamilegacy/minio --set image.tag=@sha256-953d489a81cc4de7975f90e07202189c4325da39b0b92470b6a13c7ea99e36cd --set clientImage.repository=bitnamilegacy/minio-client --set clientImage.tag=@sha256-7a6b4b93998903f1673d2bd2140ac26b807c4224627b743778c5a8f70db561f1 --set fullnameOverride=argo-artifacts --set namespaceOverride=argo-artifacts
+helm install argo-artifacts oci://registry-1.docker.io/bitnamicharts/minio --version 17.0.16 --set image.repository=bitnamilegacy/minio --set image.tag=2025.7.23-debian-12-r5 --set clientImage.repository=bitnamilegacy/minio-client --set clientImage.tag=2025.7.21-debian-12-r3 --set fullnameOverride=argo-artifacts --set namespaceOverride=argo-artifacts
 
 kubectl -n argo-artifacts rollout status --watch --timeout=600s deployment/argo-artifacts-console
 kubectl -n argo-artifacts port-forward --address 0.0.0.0 svc/argo-artifacts-console 9090:9090 > /dev/null &
