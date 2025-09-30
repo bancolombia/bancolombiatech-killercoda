@@ -343,9 +343,6 @@ spec:
     parameters:
       - name: repo_url
       - name: revision
-      - name: project_dir
-      - name: image_name
-      - name: image_tag
   volumes:
     - name: workspace
       emptyDir: {}
@@ -375,7 +372,7 @@ spec:
             arguments:
               parameters:
                 - name: project_dir
-                  value: "{{workflow.parameters.project_dir}}"
+                  value: "{{tasks.clone.outputs.parameters.project_dir}}"
               artifacts:
                 - name: clone
                   from: "{{tasks.clone.outputs.artifacts.repo}}"
@@ -388,7 +385,7 @@ spec:
             arguments:
               parameters:
                 - name: project_dir
-                  value: "{{workflow.parameters.project_dir}}"
+                  value: "{{tasks.clone.outputs.parameters.project_dir}}"
               artifacts:
                 - name: clone
                   from: "{{tasks.clone.outputs.artifacts.repo}}"
@@ -401,11 +398,11 @@ spec:
             arguments:
               parameters:
                 - name: image_name
-                  value: "{{workflow.parameters.image_name}}"
+                  value: "{{tasks.clone.outputs.parameters.image_name}}"
                 - name: image_tag
-                  value: "{{workflow.parameters.image_tag}}"
+                  value: "{{tasks.clone.outputs.parameters.image_tag}}"
                 - name: project_dir
-                  value: "{{workflow.parameters.project_dir}}"
+                  value: "{{tasks.clone.outputs.parameters.project_dir}}"
               artifacts:
                 - name: clone
                   from: "{{tasks.clone.outputs.artifacts.repo}}"
