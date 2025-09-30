@@ -160,7 +160,7 @@ spec:
   dependencies:
     - name: new-commit
       eventSourceName: github
-      eventName: push
+      eventName: git-push
       filters:
         data:
           # Type of Github event that triggered the delivery: [pull_request, push, issues, label, ...]
@@ -208,6 +208,19 @@ spec:
                                 value: "{{workflow.parameters.repo_url}}"
                               - name: revision
                                 value: "{{workflow.parameters.revision}}"
+          parameters:
+            # repo_url: from payload body.repository.clone_url (HTTPS)
+            - src:
+                dependencyName: new-commit
+                dataKey: body.repository.clone_url
+              dest: spec.arguments.parameters.0.value
+            # revision: from payload body.ref (e.g., "refs/heads/main") -> "main"
+            - src:
+                dependencyName: new-commit
+                dataKey: body.ref
+                valueFrom:
+                  jqFilter: 'split("/") | .[2]'
+              dest: spec.arguments.parameters.1.value
 ```{{copy}}
 
 El `Sensor` que acabamos de crear tomará un tiempo en acomodar su infraestructura.
