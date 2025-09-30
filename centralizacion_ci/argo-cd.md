@@ -127,9 +127,9 @@ Figura 2. Configuración de _"NEW APP"_ - Parte 1.
 
 Como se aprecia en la Figura 2, iniciamos definiendo la metadata de la configuración en Argo CD. Para nuestro caso:
 
-* Application Name: centralizador-ci
-* Project Name: default
-* Sync Policy: Automatic
+* __Application Name:__ centralizador-ci
+* __Project Name:__ default
+* __Sync Policy:__ Automatic
 
 ![](./images/argocd-repo.png)
 
@@ -141,4 +141,4 @@ Luego, relacionamos el repositorio que queremos vincular con nuestro cluster.
 
 Figura 4. Resultado de las definiciones de los namespaces.
 
-Si todo salió de manera exitosa, obtendremos el resultado definido en la Figura 4.
+Si todo salió de manera exitosa, obtendremos el resultado mostrado en la Figura 4.
