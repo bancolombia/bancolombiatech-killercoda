@@ -145,7 +145,7 @@ Luego, relacionamos el repositorio que queremos vincular con nuestro cluster. Ta
   * __Cluster URL:__ https://kubernetes.default.svc
   * __Namespace:__ default
 
-Esto último lo que hará que todo objeto de K8s que no tenga namespace declarado, tome por valor `default`.
+Esto último lo que hará es que todo objeto de K8s que no tenga namespace declarado, tome por valor `default`.
 
 ![](./images/argocd-res.png)
 
