@@ -132,10 +132,26 @@ spec:
           fi
 
           git clone --depth 1 --branch "$rev" "$repo" src
+
+          #Entre al repo y obtenga los datos del semantic-release
+          cd src
+          jq -r '.project_dir' semantic-release.json > /tmp/project_dir.txt
+          jq -r '.image_name'  semantic-release.json > /tmp/image_name.txt
+          jq -r '.image_tag'   semantic-release.json > /tmp/image_tag.txt
     outputs:
       artifacts:
         - name: repo
           path: /workspace/src
+      parameters:
+        - name: project_dir
+          valueFrom:
+            path: /tmp/project_dir.txt
+        - name: image_name
+          valueFrom:
+            path: /tmp/image_name.txt
+        - name: image_tag
+          valueFrom:
+            path: /tmp/image_tag.txt
 ```{{copy}}
 
 ### 3.2. Calidad
