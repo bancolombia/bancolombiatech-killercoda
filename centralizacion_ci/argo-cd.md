@@ -135,10 +135,21 @@ Como se aprecia en la Figura 2, iniciamos definiendo la metadata de la configura
 
 Figura 3. Configuración del repositorio.
 
-Luego, relacionamos el repositorio que queremos vincular con nuestro cluster. 
+Luego, relacionamos el repositorio que queremos vincular con nuestro cluster. También, debemos definir la referencia del clúster, que para nuestro caso sería:
+
+* __Cluster URL:__ https://kubernetes.default.svc
+* __Namespace:__ default
+
+Esto último lo que hará que todo objeto de K8s que no tenga namespace declarado, tome por valor `default`.
 
 ![](./images/argocd-res.png)
 
 Figura 4. Resultado de las definiciones de los namespaces.
 
-Si todo salió de manera exitosa, obtendremos el resultado mostrado en la Figura 4.
+Si todo salió de manera exitosa, obtendremos el resultado mostrado en la Figura 4. Adicional, puedes corroborarlo ejecutando el siguiente comando:
+
+```bash
+k get ns
+```{{exec}}
+
+Si todo es correcto, verás la existencia de los namespaces `argo` y `argo-events`, que es donde existirán los objetos que construiremos de Argo Workflows y Argo Events, respectivamente.

@@ -83,7 +83,7 @@ Para lograrlo, crearemos `ClusterWorkflowTemplates`, que se tratan de CRDs de K8
 
 ![](./images/pipeline.png)
 
-Figura 2. Pipeline de Build.
+Figura 5. Pipeline de Build.
 
 Como se aprecia en la Figura 2, el pipeline consiste de los siguientes _steps_:
 
@@ -326,7 +326,20 @@ spec:
           path: /workspace/image-oci.tar
 ```{{copy}}
 
-### 3.5. `Workflow` para testing
+
+### 3.5. Resultados finales
+
+Una vez termines de hacer las configuraciones, podrás ver los resultados en las UI de Argo en las Figuras 6 y 7.
+
+![](./images/argocd-workflows-res.png)
+
+Figura 6. Objetos de Argo Workflows en __Argo CD__.
+
+![](./images/workflows-templates.png)
+
+Figura 7. Templates de pipelines en __Argo Workflows__.
+
+### 3.6. `Workflow` para testing (Opcional)
 
 Para corroborar que todas los templates fueron debidamente configurados, ejecutaremos el siguiente Workflow en el repositorio de tu preferencia. Debe ser un desarrollo Java para que funcione y evalúe todos los _steps_. 
 
