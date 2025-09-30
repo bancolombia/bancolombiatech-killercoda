@@ -210,4 +210,8 @@ spec:
                                 value: "{{workflow.parameters.revision}}"
 ```{{copy}}
 
+El `Sensor` que acabamos de crear tomará un tiempo en acomodar su infraestructura.
 
+```bash
+kubectl -n argo-events rollout status --watch --timeout=600s deployment/TODO
+```{{copy}}
