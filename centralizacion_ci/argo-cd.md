@@ -34,25 +34,71 @@ Ahora, vamos a clonar el repositorio y brindar una estructura base para organiza
 <repo>/
   ├── argo/
   |     ├── workflows/
-  |     |       ├── README.md
+  |     |       ├── ns.yaml
   |     |       ├── kustomization.yaml
   |     ├── events/
-  |     |       ├── README.md
+  |     |       ├── ns.yaml
   |     |       ├── kustomization.yaml
   |     ├── kustomization.yaml
 LICENSE
 README.md
 ```
 
-Cada `kustomization.yaml` expuesto en la estructura, especifica los manifiestos que se desean relacionar dentro del flujo GitOps y cuentan con la siguiente estructura:
+Para relacionar el repo con Argo CD, debemos relacionar cada `kustomization.yaml` con los manifiestos de K8s que deseamos desplegar. El `argo/kustomization.yaml` quedaría de la siguiente forma:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- <carpeta>
-- <manifiesto>.yaml
-```
+- events/
+- workflows/
+```{{copy}}
+
+Esta configuración conecta las definiciones de ArgoCD con las de Workflows y Events.
+
+### 1.1. Workflows
+
+Para Argo Workflows, el `argo/workflows/kustomization.yaml` quedaría de la siguiente forma:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ns.yaml
+```{{copy}}
+
+Procederemos a definir el namespace principal a través del siguiente manifiesto:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argo
+spec: {}
+status: {}
+```{{copy}}
+
+### 1.2. Events
+
+Para Argo Events, el `argo/events/kustomization.yaml` quedaría de la siguiente forma:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ns.yaml
+```{{copy}}
+
+Procederemos a definir el namespace principal a través del siguiente manifiesto:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argo-events
+spec: {}
+status: {}
+```{{copy}}
 
 ## 2. Argo Server
 
@@ -75,3 +121,14 @@ echo "ArgoCD password = $(k get secret -n argocd argocd-initial-admin-secret -o 
 
 Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD. Lo podremos hacer a través de la UI, como se muestra en la Figura 2.
 
+![](./images/argocd-init.png)
+
+Figura 2. Configuración de _"NEW APP"_ - Parte 1.
+
+![](./images/argocd-repo.png)
+
+Figura 3. Configuración del repositorio.
+
+![](./images/argocd-res.png)
+
+Figura 4. Resultado de las definiciones de los namespaces.
