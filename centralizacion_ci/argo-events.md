@@ -153,9 +153,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
   name: github-push
+  namespace: argo-events
 spec:
   template:
-    serviceAccountName: TODO
+    serviceAccountName: argo-workflow
   dependencies:
     - name: new-commit
       eventSourceName: github
@@ -207,6 +208,6 @@ spec:
                                 value: "{{workflow.parameters.repo_url}}"
                               - name: revision
                                 value: "{{workflow.parameters.revision}}"
-```
+```{{copy}}
 
 
