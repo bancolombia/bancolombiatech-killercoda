@@ -119,16 +119,26 @@ echo "ArgoCD password = $(k get secret -n argocd argocd-initial-admin-secret -o 
 
 ## 3. Configuración de Argo CD
 
-Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD. Lo podremos hacer a través de la UI, como se muestra en la Figura 2.
+Llegados a este punto, ya tenemos acceso al Argo Server y tenemos listo el repositorio. Lo único que debemos hacer es relacionar el repositorio con Argo CD. Lo podremos hacer a través de la UI, como se muestra en las Figuras 2, 3 y 4.
 
 ![](./images/argocd-init.png)
 
 Figura 2. Configuración de _"NEW APP"_ - Parte 1.
 
+Como se aprecia en la Figura 2, iniciamos definiendo la metadata de la configuración en Argo CD. Para nuestro caso:
+
+* Application Name: centralizador-ci
+* Project Name: default
+* Sync Policy: Automatic
+
 ![](./images/argocd-repo.png)
 
 Figura 3. Configuración del repositorio.
 
+Luego, relacionamos el repositorio que queremos vincular con nuestro cluster. 
+
 ![](./images/argocd-res.png)
 
 Figura 4. Resultado de las definiciones de los namespaces.
+
+Si todo salió de manera exitosa, obtendremos el resultado definido en la Figura 4.
