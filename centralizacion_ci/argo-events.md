@@ -1,10 +1,10 @@
 # Argo Events
 
-Se trata de un framework de automatización _"event-driven"_ de Kubernetes que ayuda a ejecutar objetos de K8s, Argo Workflows y servicios serverless, entre otros, como se aprecia en la Figura 2.
+Se trata de un framework de automatización _"event-driven"_ de Kubernetes que ayuda a ejecutar objetos de K8s, Argo Workflows y servicios serverless, entre otros, como se aprecia en la Figura 8.
 
 ![](./images/argo-events.png)
 
-Figura 2. Fuentes de Argo Events.
+Figura 8. Fuentes de Argo Events.
 
 Para nuestro caso, usaremos Argo Events para la detección de cambios en un repositorio; de forma que, al detectarse un evento de `commit` en el repo, Argo Events recibirá el webhook desde el repositorio Git para activar el Workflow de nuestro pipeline. Para lograrlo, tendremos que configurar 3 tipos de objetos:
 
@@ -132,21 +132,21 @@ kubectl -n argo-events port-forward --address 0.0.0.0 svc/github-eventsource-svc
 
 ### 2.3. Configuración del Webhook (GitHub)
 
-Llegados a este punto, ya están en funcionamiento todas las configuraciones del clúster para recibir los eventos desde GitHub via Webhook. Sólo debemos registrarlos en GitHub, como se muestra en la Figura 3.
+Llegados a este punto, ya están en funcionamiento todas las configuraciones del clúster para recibir los eventos desde GitHub via Webhook. Sólo debemos registrarlos en GitHub, como se muestra en la Figura 9.
 
 ![](./images/webhook.png)
 
-Figura 3. Configuración del Webhook en GitHub.
+Figura 9. Configuración del Webhook en GitHub.
 
 Ahora, cada vez que se haga una operación de `push` en alguno de los repositorios registrados activará el Webhook y enviará la información hacia este clúster en Killercoda.
 
 ## 3. Sensor y Triggers
 
-Mientras el `EventSource` declara la conexión entre el clúster y la fuente de datos (o eventos); el `Sensor` analiza las características del evento y ejecuta ciertas _acciones_ a través de `Triggers`. Aquí es donde conectamos el repositorio de negocio en GitHub (desarrollo frontend o backend, por ejemplo) con nuestro clúster para la ejecución de pipelines con Argo Workflows que definimos en la sección anterior, como se muestra en la Figura 4.
+Mientras el `EventSource` declara la conexión entre el clúster y la fuente de datos (o eventos); el `Sensor` analiza las características del evento y ejecuta ciertas _acciones_ a través de `Triggers`. Aquí es donde conectamos el repositorio de negocio en GitHub (desarrollo frontend o backend, por ejemplo) con nuestro clúster para la ejecución de pipelines con Argo Workflows que definimos en la sección anterior, como se muestra en la Figura 10.
 
 ![](./images/argo-events-architecture.png)
 
-Figura 4. Arquitectura base de Argo Events.
+Figura 10. Arquitectura base de Argo Events.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -262,4 +262,17 @@ spec:
               dest: spec.arguments.parameters.1.value
 ```{{copy}}
 
+## 3. Resultados finales
+
+En este punto, ya tenemos toda la configuración lista en lo que respecta a Argo Events. Si todo está configurado correctamente, cada operación de `push` que ejecutes al repositorio ejcutará un pipeline en Argo Workflows, parecido a lo que se muestra en la Figura 11.
+
+![](./images/workflows-final.png)
+
+Figura 11. Workflow ejecutado en __Argo Workflows__.
+
+Finalmente, en Argo CD deberías ver sincronizados los siguientes objetos:
+
+![](./images/argocd-events-final.png)
+
+Figura 12. Objetos creados con GitOps a través de Argo CD.
 
