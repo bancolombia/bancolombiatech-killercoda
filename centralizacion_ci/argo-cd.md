@@ -68,7 +68,7 @@ Las credenciales de conexión son:
 * __Password:__ ejecuta el siguiente comando para conocer la contraseña:
 
 ```bash
-echo "MinIO password = $(k get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
+echo "ArgoCD password = $(k get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
 ```{{exec}}
 
 ## 3. Configuración de Argo CD
