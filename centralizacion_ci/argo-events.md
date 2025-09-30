@@ -209,17 +209,13 @@ spec:
                               - name: revision
                                 value: "{{workflow.parameters.revision}}"
           parameters:
-            # repo_url: from payload body.repository.clone_url (HTTPS)
             - src:
                 dependencyName: new-commit
                 dataKey: body.repository.clone_url
               dest: spec.arguments.parameters.0.value
-            # revision: from payload body.ref (e.g., "refs/heads/main") -> "main"
             - src:
                 dependencyName: new-commit
-                dataKey: body.ref
-                valueFrom:
-                  jqFilter: 'split("/") | .[2]'
+                dataKey: body.repository.master_branch
               dest: spec.arguments.parameters.1.value
 ```{{copy}}
 
