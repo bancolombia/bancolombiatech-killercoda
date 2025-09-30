@@ -137,8 +137,13 @@ Figura 3. Configuración del repositorio.
 
 Luego, relacionamos el repositorio que queremos vincular con nuestro cluster. También, debemos definir la referencia del clúster, que para nuestro caso sería:
 
-* __Cluster URL:__ https://kubernetes.default.svc
-* __Namespace:__ default
+* __SOURCE:__ información del repositorio Git
+  * __Repository URL:__ URL de tu repositorio de configuraciones (ver sección 1).
+  * __Revision:__ rama que deseas vincular. Recomendable dejarlo en _HEAD_.
+  * __Path:__ debemos usar la ruta raíz: `argo`, como lo definimos en la sección 1.
+* __DESTINATION:__ información del clúster donde queremos desplegar. Para este caso, será el clúster que tenemos en Killercoda.
+  * __Cluster URL:__ https://kubernetes.default.svc
+  * __Namespace:__ default
 
 Esto último lo que hará que todo objeto de K8s que no tenga namespace declarado, tome por valor `default`.
 
