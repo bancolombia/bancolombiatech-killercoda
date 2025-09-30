@@ -276,3 +276,17 @@ Finalmente, en Argo CD deberías ver sincronizados los siguientes objetos:
 
 Figura 12. Objetos creados con GitOps a través de Argo CD.
 
+## 4. Troubleshooting __(incidentes)__
+
+Las UIs en Killercoda suelen ser inestables. En caso de que pierdas conexión con alguna UI, sólo debes ejecutar el comando respectivo de la que no te esté funcionando.
+
+| UI Server | Comando que expone la UI | Acceso a la UI | 
+| --------- | ------------------------ | -------------- | 
+| Argo CD   | `kubectl -n argocd port-forward --address 0.0.0.0 svc/argocd-server 80:80 > /dev/null &`{{exec}} | [click aquí]({{TRAFFIC_HOST1_80}}) |
+| Argo Workflows | `kubectl -n argo port-forward --address 0.0.0.0 svc/argo-server 2746:2746 > /dev/null &`{{exec}} | [click aquí]({{TRAFFIC_HOST1_2746}}) |
+| Argo Events | `kubectl -n argo-events port-forward --address 0.0.0.0 svc/github-eventsource-svc 12000:12000 > /dev/null &`{{exec}} | NA |
+| MinIO - UI | `kubectl -n argo-artifacts port-forward --address 0.0.0.0 svc/argo-artifacts-console 9090:9090 > /dev/null &`{{exec}} | [click aquí]({{TRAFFIC_HOST1_9090}}) |
+| MinIO - Server | `kubectl -n argo-artifacts port-forward --address 0.0.0.0 svc/argo-artifacts 9000:9000 > /dev/null &`{{exec}} | NA |
+
+Tabla 1. Comandos de troubleshooting de las conexiones de Killercoda.
+

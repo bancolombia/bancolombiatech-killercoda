@@ -161,7 +161,7 @@ Si todo es correcto, verás la existencia de los namespaces `argo` y `argo-event
 
 ## 3. Troubleshooting __(incidentes)__
 
-Las UIs en Killercoda suelen ser inestables. En caso de que pierdas conexión con alguna UI, sólo debes ejecutar el comando respectivo de la que no te esté funcionando. Sólo debes encontrar la referencia en la siguiente tabla.
+Las UIs en Killercoda suelen ser inestables. En caso de que pierdas conexión con alguna UI, sólo debes ejecutar el comando respectivo de la que no te esté funcionando.
 
 | UI Server | Comando que expone la UI | Acceso a la UI | 
 | --------- | ------------------------ | -------------- | 
