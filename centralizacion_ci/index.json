@@ -8,16 +8,16 @@
     },
     "steps": [
       {
+        "text": "argo-cd.md",
+        "foreground": "background/cd-config.sh"
+      },
+      {
         "text": "argo-workflows.md",
         "foreground": "background/workflows-config.sh"
       },
       {
         "text": "argo-events.md",
         "foreground": "background/events-config.sh"
-      },
-      {
-        "text": "argo-cd.md",
-        "foreground": "background/cd-config.sh"
       }
     ],
     "finish": {
